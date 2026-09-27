@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# pihole-time-format.sh  (v2.0)
+# pihole-time-format.sh  (v2.1)
 # -----------------------------
+# https://github.com/Mythodix/pihole-time-format
 # Replaces Pi-hole's "YYYY-MM-DD HH:mm:ss" timestamps in the Query Log with
 # friendlier labels, plus a hover tooltip showing the original time:
 #
@@ -20,7 +21,11 @@
 #     changes what is DISPLAYED. Everything else still gets the raw Unix
 #     timestamp.
 #
-# Usage (on the Pi):
+# Quickest use, straight from GitHub (on the Pi):
+#   curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s apply
+#   curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s restore
+#
+# Or with a downloaded copy (on the Pi):
 #   sudo ./pihole-time-format.sh apply     # patch queries.js
 #   sudo ./pihole-time-format.sh restore   # put the stock file back
 #   ./pihole-time-format.sh status         # patched? patchable?
@@ -42,12 +47,22 @@ TARGET="${PIHOLE_QUERIES_JS:-/var/www/html/admin/scripts/js/queries.js}"
 BACKUP="${TARGET}.orig"
 MARKER="// PI-HOLE-TIME-FORMAT-PATCHED"
 
+# How to tell the user to re-run this script in messages. When it's piped
+# from GitHub ("curl ... | sudo bash -s apply"), $0 is just "bash", so show
+# the full one-line command instead.
+RAW_URL="https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh"
+if [[ "$(basename -- "$0")" == "bash" || "$0" == "-bash" ]]; then
+    RUN="curl -fsSL $RAW_URL | sudo bash -s"
+else
+    RUN="sudo $0"
+fi
+
 # The replacement render function, kept on one line.
 NEW_RENDER='render(data, type) { if (type !== "display") return data; var dt = moment.unix(data); var now = moment(); var time = dt.format("h:mm:ss A"); var label; if (dt.isSame(now, "day")) { label = "Today " + time; } else if (dt.isSame(now.clone().subtract(1, "day"), "day")) { label = "Yesterday " + time; } else if (dt.isSame(now, "year")) { label = dt.format("MMM D") + ", " + time; } else { label = dt.format("MMM D YYYY") + ", " + time; } return "<span title=\"" + dt.format("YYYY-MM-DD HH:mm:ss") + "\">" + label + "</span>"; },'
 
 require_root() {
     if [[ $EUID -ne 0 ]]; then
-        echo "This command must be run as root. Try: sudo $0 ${1:-}" >&2
+        echo "This command must be run as root. Try: $RUN ${1:-}" >&2
         exit 1
     fi
 }
@@ -56,7 +71,7 @@ require_target() {
     if [[ ! -f "$TARGET" ]]; then
         echo "Error: $TARGET not found." >&2
         echo "Find it with:  sudo find / -path '*scripts/js/queries.js' 2>/dev/null" >&2
-        echo "Then run with: sudo PIHOLE_QUERIES_JS=<path> $0 apply" >&2
+        echo "Then run with: sudo PIHOLE_QUERIES_JS=<path> bash pihole-time-format.sh apply" >&2
         exit 1
     fi
 }
@@ -105,7 +120,7 @@ cmd_apply() {
 
     if is_patched; then
         echo "Already patched. Nothing to do."
-        echo "To re-apply from scratch: sudo $0 restore, then sudo $0 apply"
+        echo "To re-apply from scratch, run restore and then apply again."
         exit 0
     fi
 
@@ -189,7 +204,7 @@ PYEOF
     echo "Patched: $TARGET"
     echo
     echo "Now hard-refresh the Pi-hole tab in your browser (Ctrl+F5)."
-    echo "If anything looks wrong: sudo $0 restore"
+    echo "To undo:  $RUN restore"
 }
 
 cmd_restore() {
@@ -213,7 +228,7 @@ case "${1:-}" in
     status)  cmd_status ;;
     *)
         cat <<USAGE
-Usage: sudo $0 {apply|restore|status}
+Usage: $RUN {apply|restore|status}
 
   apply    Replace the Query Log's timestamp format with friendly labels
            ("Today 6:42:01 PM", "Yesterday 9:15:32 AM", "Apr 16, 11:03:10 AM").

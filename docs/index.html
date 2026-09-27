@@ -179,7 +179,9 @@
     margin: 14px 0 16px;
   }
   .run h2 { font-size: 24px; font-weight: 500; margin: 0 0 4px; }
-  .run .sub { margin: 0 0 20px; color: inherit; opacity: .85; }
+  .run .code { margin: 0 0 14px; }
+  .run .code pre { white-space: pre-wrap; word-break: break-all; font-size: 16px; }
+  .run .sub { margin: 0 0 16px; color: inherit; opacity: .85; }
   .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
   .step {
     display: grid;
@@ -425,17 +427,17 @@
     <p class="lede">Swaps the Query Log's <code>2026-05-23 18:42:01</code> timestamps for labels like <strong>Today 6:42:01 PM</strong>. Sorting, search and export keep working.</p>
     <div class="chips">
       <span class="chip"><span class="ms">verified</span>Tested on Pi-hole Web v6.5</span>
-      <span class="chip"><span class="ms">update</span>Re-run after every <code>pihole -up</code></span>
+      <span class="chip"><span class="ms">bolt</span>One-line install</span>
       <span class="chip"><span class="ms">lock</span>No passwords stored</span>
-      <a class="chip link" href="https://github.com/YOUR-GITHUB-USERNAME/pihole-time-format"><span class="ms">code</span>View on GitHub</a>
+      <a class="chip link" href="https://github.com/Mythodix/pihole-time-format"><span class="ms">code</span>View on GitHub</a>
     </div>
 
     <div class="pi-box">
-      <p class="hint"><strong>Your Pi.</strong> Fill these in and every command on this page updates to match.</p>
+      <p class="hint"><strong>Your Pi.</strong> Optional: fill these in and the commands below update to match.</p>
       <div class="pi-row">
         <label class="field"><span>Username</span><input id="in-user" value="pi" autocomplete="off" spellcheck="false"></label>
         <span class="at">@</span>
-        <label class="field"><span>Address</span><input id="in-host" value="pi.hole" autocomplete="off" spellcheck="false"></label>
+        <label class="field"><span>Address</span><input id="in-host" value="192.168.1.50" autocomplete="off" spellcheck="false"></label>
       </div>
     </div>
   </header>
@@ -444,10 +446,11 @@
 <nav class="tabs" aria-label="Sections">
   <div class="wrap">
     <div class="row">
-      <a href="#run">After updates</a>
-      <a href="#first">First time</a>
+      <a href="#run">Install</a>
+      <a href="#first">Command line</a>
+      <a href="#windows">Windows</a>
       <a href="#why">How it works</a>
-      <a href="#files">Files</a>
+      <a href="#files">Download</a>
       <a href="#manual">On the Pi</a>
       <a href="#trouble">Troubleshooting</a>
       <a href="#security">Security</a>
@@ -459,40 +462,51 @@
 <main class="wrap">
 
   <section class="run" id="run">
-    <h2>After every Pi-hole update</h2>
-    <p class="sub">Updates bring the old timestamps back. Two steps put yours back.</p>
+    <h2>Install</h2>
+    <p class="sub">On your Pi, paste this one line. Then press <kbd>Ctrl</kbd> + <kbd>F5</kbd> on the Query Log.</p>
+    <div class="code"><pre>curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s apply</pre><button class="copy" aria-label="Copy install command"><span class="ms">content_copy</span></button></div>
     <ol class="steps">
       <li class="step">
-        <span class="n">1</span>
-        <span>Double-click <strong>apply-pihole-time-format.bat</strong> and wait for <code>=== Done ===</code></span>
-        <span class="where"><span class="ms">computer</span>PC</span>
+        <span class="n"><span class="ms">update</span></span>
+        <span><strong>After a Pi-hole update,</strong> run the same line again. Updates put the old timestamps back.</span>
+        <span class="where"><span class="ms">memory</span>Pi</span>
       </li>
       <li class="step">
-        <span class="n">2</span>
-        <span>Hard-refresh the Query Log with <kbd>Ctrl</kbd> + <kbd>F5</kbd></span>
-        <span class="where"><span class="ms">language</span>Browser</span>
+        <span class="n"><span class="ms">undo</span></span>
+        <span><strong>To undo,</strong> run it with <code>restore</code> instead of <code>apply</code>. The original file goes back exactly as it was.</span>
+        <span class="where"><span class="ms">memory</span>Pi</span>
       </li>
     </ol>
   </section>
 
   <section class="card" id="first">
     <div class="card-head">
-      <span class="icon-tile ok"><span class="ms">rocket_launch</span></span>
-      <h2>First-time setup</h2>
+      <span class="icon-tile ok"><span class="ms">terminal</span></span>
+      <h2>Getting to your Pi's command line</h2>
     </div>
+    <p>From another computer on your network, open <strong>Windows Terminal</strong>, <strong>Command Prompt</strong>, or the Mac <strong>Terminal</strong>, and log in. Your Pi's IP address is on the Pi-hole dashboard.</p>
+    <div class="code"><pre>ssh <span class="v u">pi</span>@<span class="v h">pi.hole</span></pre><button class="copy" aria-label="Copy command"><span class="ms">content_copy</span></button></div>
+    <p>Type your Pi password when asked, then paste the install line.</p>
+  </section>
+
+  <section class="card" id="windows">
+    <div class="card-head">
+      <span class="icon-tile"><span class="ms">desktop_windows</span></span>
+      <h2>Windows one-click launcher <span style="font-size:14px;color:var(--on-surface-variant);font-weight:400">optional</span></h2>
+    </div>
+    <p>Prefer double-clicking? The <code>windows</code> folder does the same thing from your PC.</p>
     <ol class="flow">
-      <li><strong>Edit <code>pihole-patch-config.bat</code>.</strong> Right-click it, choose <strong>Edit</strong>, set these two lines, and save.<span class="where"><span class="ms">computer</span>PC</span>
+      <li>On the GitHub page, click <strong>Code › Download ZIP</strong> and extract it.<span class="where"><span class="ms">language</span>Browser</span></li>
+      <li>In the <code>windows</code> folder, right-click <code>pihole-patch-config.bat</code> › <strong>Edit</strong>. Set these two lines and save.<span class="where"><span class="ms">computer</span>PC</span>
         <div class="code"><pre>set "PI_USER=<span class="v u">pi</span>"
 set "PI_HOST=<span class="v h">pi.hole</span>"</pre><button class="copy" aria-label="Copy lines"><span class="ms">content_copy</span></button></div>
-        <p>Use the Pi's IP address if you're not sure; <code>pi.hole</code> only works when this PC already uses Pi-hole for DNS.</p>
       </li>
-      <li><strong>Optional: run <code>setup-pihole-ssh.bat</code> once.</strong> You'll type your Pi password twice, then patching never asks again. Read <a href="#security">Security</a> first.<span class="where"><span class="ms">computer</span>PC</span></li>
-      <li><strong>Double-click <code>apply-pihole-time-format.bat</code>.</strong> Without step 2 it asks for your password up to three times.<span class="where"><span class="ms">computer</span>PC</span></li>
-      <li><strong>Press <kbd>Ctrl</kbd> + <kbd>F5</kbd></strong> on the Pi-hole Query Log tab.<span class="where"><span class="ms">language</span>Browser</span></li>
+      <li>Double-click <code>apply-pihole-time-format.bat</code> and type your Pi password when asked.<span class="where"><span class="ms">computer</span>PC</span></li>
+      <li>Press <kbd>Ctrl</kbd> + <kbd>F5</kbd> on the Query Log.<span class="where"><span class="ms">language</span>Browser</span></li>
     </ol>
     <div class="note info">
-      <span class="ms">info</span>
-      <p><strong>Needs the Windows OpenSSH Client.</strong> It's built into Windows 10 and 11. If <code>ssh</code> isn't recognized, add it under Settings › System › Optional features.</p>
+      <span class="ms">key</span>
+      <p><strong>No more password prompts:</strong> double-click <code>setup-pihole-ssh.bat</code> once. Read <a href="#security">Security</a> first.</p>
     </div>
   </section>
 
@@ -523,37 +537,29 @@ set "PI_HOST=<span class="v h">pi.hole</span>"</pre><button class="copy" aria-la
   <section class="card" id="files">
     <div class="card-head">
       <span class="icon-tile"><span class="ms">folder</span></span>
-      <h2>Files</h2>
+      <h2>What's in the download</h2>
     </div>
-    <p>Keep them all in the <strong>same folder</strong> on the PC.</p>
     <ul class="list">
-      <li><span class="ms">edit_note</span><div class="body"><div class="title">pihole-patch-config.bat</div><div class="desc">Your Pi's username and address. Edit this first; don't double-click it.</div></div></li>
-      <li><span class="ms">key</span><div class="body"><div class="title">setup-pihole-ssh.bat</div><div class="desc">Optional, once. Sets up password-free patching.</div></div></li>
-      <li><span class="ms">play_circle</span><div class="body"><div class="title">apply-pihole-time-format.bat</div><div class="desc">Uploads the patch and runs it. Use after every update.</div></div></li>
-      <li><span class="ms">terminal</span><div class="body"><div class="title">pihole-time-format.sh</div><div class="desc">The patch itself. Runs on the Pi.</div></div></li>
-      <li><span class="ms">menu_book</span><div class="body"><div class="title">README.md</div><div class="desc">Full instructions, including macOS and Linux. Download everything from the GitHub page with <strong>Code › Download ZIP</strong>.</div></div></li>
+      <li><span class="ms">terminal</span><div class="body"><div class="title">pihole-time-format.sh</div><div class="desc">The patch itself. This is the only file the install line uses.</div></div></li>
+      <li><span class="ms">folder</span><div class="body"><div class="title">windows/</div><div class="desc">Optional double-click launchers: the config file, the launcher, and the password-free setup.</div></div></li>
+      <li><span class="ms">menu_book</span><div class="body"><div class="title">README.md</div><div class="desc">The GitHub page, with troubleshooting and a full uninstall.</div></div></li>
     </ul>
-    <div class="note info">
-      <span class="ms">description</span>
-      <p><strong>File patched on the Pi:</strong> <code>/var/www/html/admin/scripts/js/queries.js</code></p>
-    </div>
   </section>
 
   <section class="card" id="manual">
     <div class="card-head">
       <span class="icon-tile"><span class="ms">keyboard</span></span>
-      <h2>Running it on the Pi</h2>
+      <h2>Other ways to run it</h2>
     </div>
-    <p>From Command Prompt, PowerShell, or a macOS/Linux terminal, log into the Pi:</p>
-    <div class="code"><pre>ssh <span class="v u">pi</span>@<span class="v h">pi.hole</span></pre><button class="copy" aria-label="Copy command"><span class="ms">content_copy</span></button></div>
-    <p><strong>Quickest install:</strong> download the script straight onto the Pi and apply it. After future updates, just run the last line again.</p>
-    <div class="code"><pre>curl -fsSL https://raw.githubusercontent.com/YOUR-GITHUB-USERNAME/pihole-time-format/main/pihole-time-format.sh -o ~/pihole-time-format.sh
+    <p><strong>Download first, then run:</strong> for anyone who prefers to read a script before running it.</p>
+    <div class="code"><pre>curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh -o ~/pihole-time-format.sh
 chmod +x ~/pihole-time-format.sh
-sudo ~/pihole-time-format.sh apply</pre><button class="copy" aria-label="Copy commands"><span class="ms">content_copy</span></button></div>
-    <p>Script commands:</p>
-    <div class="code"><pre>~/pihole-time-format.sh status         <span class="c"># patched? can this version be patched?</span>
-sudo ~/pihole-time-format.sh apply     <span class="c"># apply the patch</span>
-sudo ~/pihole-time-format.sh restore   <span class="c"># put Pi-hole's stock file back</span></pre><button class="copy" aria-label="Copy commands"><span class="ms">content_copy</span></button></div>
+less ~/pihole-time-format.sh              <span class="c"># read it first (q to quit)</span>
+sudo bash ~/pihole-time-format.sh apply</pre><button class="copy" aria-label="Copy commands"><span class="ms">content_copy</span></button></div>
+    <p>Commands for a downloaded copy:</p>
+    <div class="code"><pre>bash ~/pihole-time-format.sh status         <span class="c"># patched? can this version be patched?</span>
+sudo bash ~/pihole-time-format.sh apply     <span class="c"># apply the patch</span>
+sudo bash ~/pihole-time-format.sh restore   <span class="c"># put Pi-hole's stock file back</span></pre><button class="copy" aria-label="Copy commands"><span class="ms">content_copy</span></button></div>
     <p><strong>Patching from macOS or Linux</strong> (the .bat files are Windows-only):</p>
     <div class="code"><pre>scp pihole-time-format.sh <span class="v u">pi</span>@<span class="v h">pi.hole</span>:~/
 ssh -t <span class="v u">pi</span>@<span class="v h">pi.hole</span> "chmod +x ~/pihole-time-format.sh &amp;&amp; sudo ~/pihole-time-format.sh apply"</pre><button class="copy" aria-label="Copy commands"><span class="ms">content_copy</span></button></div>
@@ -593,7 +599,7 @@ ssh -t <span class="v u">pi</span>@<span class="v h">pi.hole</span> "chmod +x ~/
 
     <details>
       <summary><span class="ms lead">refresh</span>Patched, but the browser shows the old format<span class="ms chev">expand_more</span></summary>
-      <div class="inner"><p>The browser is using a cached copy. Press <kbd>Ctrl</kbd> + <kbd>F5</kbd> on the Pi-hole tab. If it's still unchanged, run <code>~/pihole-time-format.sh status</code> on the Pi.</p></div>
+      <div class="inner"><p>The browser is using a cached copy. Press <kbd>Ctrl</kbd> + <kbd>F5</kbd> on the Pi-hole tab. If it's still unchanged, run the install line with <code>status</code> instead of <code>apply</code>.</p></div>
     </details>
 
     <details>
@@ -612,7 +618,7 @@ sudo PIHOLE_QUERIES_JS=/path/to/queries.js ~/pihole-time-format.sh apply</pre><b
 
     <details>
       <summary><span class="ms lead">healing</span>The Query Log looks broken after patching<span class="ms chev">expand_more</span></summary>
-      <div class="inner"><p>Run <code>sudo ~/pihole-time-format.sh restore</code>, then <kbd>Ctrl</kbd> + <kbd>F5</kbd>. If the backup is missing, <code>sudo pihole -r</code> (Repair) reinstalls Pi-hole's stock web files.</p></div>
+      <div class="inner"><p>Run the install line with <code>restore</code> instead of <code>apply</code>, then <kbd>Ctrl</kbd> + <kbd>F5</kbd>. If the backup is missing, <code>sudo pihole -r</code> (Repair) reinstalls Pi-hole's stock web files.</p></div>
     </details>
   </section>
 
@@ -634,16 +640,16 @@ sudo PIHOLE_QUERIES_JS=/path/to/queries.js ~/pihole-time-format.sh apply</pre><b
       <span class="icon-tile err"><span class="ms">delete</span></span>
       <h2>Uninstall</h2>
     </div>
-    <p>Run on the Pi. Lines 2 and 3 are only needed if you ran the setup.</p>
-    <div class="code"><pre>sudo ~/pihole-time-format.sh restore                   <span class="c"># 1. stock timestamps back</span>
+    <p>Run on the Pi. Lines 2 and 3 are only needed if you used the Windows password-free setup.</p>
+    <div class="code"><pre>curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s restore  <span class="c"># 1. stock timestamps back</span>
 sudo rm /etc/sudoers.d/pihole-timeformat               <span class="c"># 2. remove the sudo rule</span>
 sed -i '/pihole-time-format$/d' ~/.ssh/authorized_keys <span class="c"># 3. remove the setup's key</span>
-rm ~/pihole-time-format.sh                             <span class="c"># 4. delete the script</span>
-sudo rm /var/www/html/admin/scripts/js/queries.js.orig <span class="c">#    and its backup</span></pre><button class="copy" aria-label="Copy commands"><span class="ms">content_copy</span></button></div>
+rm -f ~/pihole-time-format.sh                          <span class="c"># 4. delete any downloaded copy</span>
+sudo rm -f /var/www/html/admin/scripts/js/queries.js.orig <span class="c"># and the backup</span></pre><button class="copy" aria-label="Copy commands"><span class="ms">content_copy</span></button></div>
     <p>Line 3 only removes keys the setup created. If setup reused a key you already had, leave it unless you want to remove it by hand.</p>
   </section>
 
-  <footer>Pi-hole Time Format Patch · Made by Mythodix · <a href="https://github.com/YOUR-GITHUB-USERNAME/pihole-time-format">GitHub</a> · MIT License<br>Not affiliated with the Pi-hole project.</footer>
+  <footer>Pi-hole Time Format Patch · Made by Mythodix · <a href="https://github.com/Mythodix/pihole-time-format">GitHub</a> · MIT License<br>Not affiliated with the Pi-hole project.</footer>
 </main>
 
 <div class="snack" id="snack" role="status" aria-live="polite">Copied</div>
@@ -667,14 +673,14 @@ sudo rm /var/www/html/admin/scripts/js/queries.js.orig <span class="c">#    and 
     function save(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
     function paint() {
       var u = inUser.value.trim() || 'pi';
-      var h = inHost.value.trim() || 'pi.hole';
+      var h = inHost.value.trim() || '192.168.1.50';
       document.querySelectorAll('.v.u').forEach(function (el) { el.textContent = u; });
       document.querySelectorAll('.v.h').forEach(function (el) { el.textContent = h; });
       save('pihole-patch-user', inUser.value.trim());
       save('pihole-patch-host', inHost.value.trim());
     }
     inUser.value = read('pihole-patch-user', 'pi');
-    inHost.value = read('pihole-patch-host', 'pi.hole');
+    inHost.value = read('pihole-patch-host', '192.168.1.50');
     inUser.addEventListener('input', paint);
     inHost.addEventListener('input', paint);
     paint();

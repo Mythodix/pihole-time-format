@@ -1,360 +1,276 @@
 # Pi-hole Time Format Patch
 
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-![Pi-hole v6](https://img.shields.io/badge/Pi--hole-v6-96060C.svg)
-
-Replaces the timestamps in Pi-hole's **Query Log** with easier-to-read labels
-like **Today 6:42:01 PM** and **Yesterday 11:15:32 PM**.
+**Makes Pi-hole's Query Log easy to read at a glance.**
+Timestamps like `2026-09-27 18:42:01` become **Today 6:42:01 PM**.
 
 ![Before and after: stock Pi-hole timestamps next to the patched labels](docs/before-after.png)
 
-| Stock Pi-hole           | Patched                  |
-|-------------------------|--------------------------|
-| `2026-05-23 18:42:01`   | `Today 6:42:01 PM`       |
-| `2026-05-22 23:15:32`   | `Yesterday 11:15:32 PM`  |
-| `2026-04-16 09:03:10`   | `Apr 16, 9:03:10 AM`     |
-| `2025-12-03 16:20:00`   | `Dec 3 2025, 4:20:00 PM` |
-
-Hover over any time to see the original full timestamp. Sorting, searching,
-exporting and the date-range picker all keep working as normal.
-
-Tested with **Pi-hole Web v6.5** (Core v6.4.2, FTL v6.6.2).
-
-📖 **Visual guide:** https://YOUR-GITHUB-USERNAME.github.io/pihole-time-format/
+- Shows **Today**, **Yesterday**, or the date, with a 12-hour clock
+- Hover any time to see the original timestamp
+- Sorting, search and export work exactly as before
+- One command to install, one command to undo
+- For **Pi-hole v6** (tested on web interface v6.5)
 
 ---
 
-## Download
+## Install
 
-Pick whichever suits you.
-
-**Option A: straight onto the Pi (quickest, any OS)**
-
-Log into your Pi over SSH and paste this. It downloads the script and applies
-the patch:
+On your Pi, paste this one line:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR-GITHUB-USERNAME/pihole-time-format/main/pihole-time-format.sh -o ~/pihole-time-format.sh
-chmod +x ~/pihole-time-format.sh
-sudo ~/pihole-time-format.sh apply
+curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s apply
 ```
 
-Then press **Ctrl+F5** on the Pi-hole Query Log tab. After future Pi-hole
-updates, just run the last line again.
+Then open the Pi-hole **Query Log** and press **Ctrl+F5** to refresh.
 
-**Option B: the Windows one-click launcher**
+That's it.
+
+<details>
+<summary><b>How do I get to my Pi's command line?</b></summary>
+
+<br>
+
+From another computer on your network, open a terminal
+(**Windows Terminal** or **Command Prompt** on Windows, **Terminal** on Mac)
+and log in with:
+
+```bash
+ssh pi@192.168.1.50
+```
+
+Replace `pi` with your Pi's username and `192.168.1.50` with its IP address
+(it's shown on the Pi-hole dashboard). Type your Pi password when asked, then
+paste the install line.
+
+</details>
+
+---
+
+## After a Pi-hole update
+
+Pi-hole updates put the old timestamps back. Just run the same install line
+again, then press **Ctrl+F5**.
+
+---
+
+## Undo
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s restore
+```
+
+This puts Pi-hole's original file back exactly as it was.
+
+---
+
+## Questions
+
+<details>
+<summary><b>Is it safe?</b></summary>
+
+<br>
+
+It changes one display setting in one file of Pi-hole's web page. It doesn't
+touch blocking, DNS, your settings or your lists. A backup of the original
+file is saved first, and if anything goes wrong while patching, the original
+is left untouched. The whole script is
+[one readable file](pihole-time-format.sh) if you'd like to check it before
+running it.
+
+</details>
+
+<details>
+<summary><b>Which Pi-hole versions does it work with?</b></summary>
+
+<br>
+
+Pi-hole v6. It was tested on web interface v6.5 (Core v6.4.2, FTL v6.6.2).
+Check yours with `pihole -v`. If a future update changes things too much,
+the script stops and tells you, without changing anything.
+
+</details>
+
+<details>
+<summary><b>It said "Already patched" but I still see the old times</b></summary>
+
+<br>
+
+Your browser is showing a saved copy of the page. Press **Ctrl+F5** on the
+Query Log tab (**Cmd+Shift+R** on a Mac).
+
+</details>
+
+<details>
+<summary><b>It said "Could not find the Time column" or "Patchable: NO"</b></summary>
+
+<br>
+
+A Pi-hole update has changed the Query Log's code and this patch needs
+updating to match. Nothing was changed on your Pi. Please
+[open an issue](https://github.com/Mythodix/pihole-time-format/issues)
+with the output of `pihole -v`.
+
+</details>
+
+<details>
+<summary><b>I'd rather download it than pipe it into bash</b></summary>
+
+<br>
+
+On the Pi:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh -o ~/pihole-time-format.sh
+less ~/pihole-time-format.sh                  # read it first if you like (q to quit)
+sudo bash ~/pihole-time-format.sh apply
+```
+
+Other commands: `sudo bash ~/pihole-time-format.sh restore` to undo, and
+`bash ~/pihole-time-format.sh status` to check whether it's patched.
+
+</details>
+
+---
+
+## More
+
+<details>
+<summary><b>Windows one-click launcher (optional)</b></summary>
+
+<br>
+
+If you'd rather not use the Pi's command line, the `windows` folder has
+double-click launchers that do it for you from a Windows PC.
 
 1. Click the green **Code** button at the top of this page, then
-   **Download ZIP**.
-2. Right-click the downloaded ZIP and choose **Extract All**.
-3. Follow [Quick start (Windows)](#quick-start-windows) below.
+   **Download ZIP**, and extract it.
+2. In the `windows` folder, right-click `pihole-patch-config.bat` and choose
+   **Edit**. Set your Pi's username and IP address, then save.
+3. Double-click `apply-pihole-time-format.bat` and type your Pi password
+   when asked. Wait for `=== Done ===`.
+4. Press **Ctrl+F5** on the Pi-hole Query Log.
 
-**Option C: with Git**
+After Pi-hole updates, just double-click `apply-pihole-time-format.bat`
+again.
 
-```bash
-git clone https://github.com/YOUR-GITHUB-USERNAME/pihole-time-format.git
-```
+**No more password prompts (optional):** double-click `setup-pihole-ssh.bat`
+once. You'll type your password twice, then never again for this patch.
+Please read the security note below first.
 
----
+**Needs:** Windows 10 or 11 with the OpenSSH Client, which is installed by
+default. If you get "ssh is not recognized", add it from
+**Settings > System > Optional features > Add a feature > OpenSSH Client**.
 
-## Contents
+</details>
 
-- [Download](#download)
-- [What's in the folder](#whats-in-the-folder)
-- [Requirements](#requirements)
-- [Quick start (Windows)](#quick-start-windows)
-- [After every Pi-hole update](#after-every-pi-hole-update)
-- [Using it from macOS or Linux](#using-it-from-macos-or-linux)
-- [Script commands](#script-commands)
-- [How it works](#how-it-works)
-- [Security notes](#security-notes)
-- [Troubleshooting](#troubleshooting)
-- [Uninstalling](#uninstalling)
+<details>
+<summary><b>Troubleshooting</b></summary>
 
----
+<br>
 
-## What's in the folder
+**"Permission denied"** — wrong password, or the wrong username.
 
-Keep the four script files together in one folder.
+**"Could not resolve hostname" or "Connection timed out"** — wrong Pi
+address, or the Pi is off. Use the IP address shown on the Pi-hole
+dashboard.
 
-| File | Where it runs | What it does |
-|------|---------------|--------------|
-| `pihole-patch-config.bat` | Nothing; you edit it | Your Pi's username and address. **Edit this first.** |
-| `setup-pihole-ssh.bat` | Windows, once | Optional. Sets up key login so patching needs no passwords. |
-| `apply-pihole-time-format.bat` | Windows | Uploads the patch script to the Pi and runs it. Use after every Pi-hole update. |
-| `pihole-time-format.sh` | The Pi | The patch itself. Can also be run by hand on the Pi. |
-| `docs/index.html` | Your browser | A visual quick-reference guide. Also online via GitHub Pages (link at the top). |
-| `docs/before-after.png` | — | The preview image used in this README. |
+**"queries.js not found"** — Pi-hole's web files are somewhere unusual.
+Find them with `sudo find / -path '*scripts/js/queries.js' 2>/dev/null`,
+then run
+`sudo PIHOLE_QUERIES_JS=/path/to/queries.js bash pihole-time-format.sh apply`.
 
----
+**"python3: command not found"** — install it with `sudo apt install python3`.
 
-## Requirements
+**"sudo: a terminal is required to read the password"** (Windows launcher) —
+the `-t` was removed from the `ssh` line in `apply-pihole-time-format.bat`.
+Put it back.
 
-**On the Pi**
+**Still asks for a password after the Windows setup** — run
+`setup-pihole-ssh.bat` again. If your existing `id_ed25519` key has a
+passphrase, Windows asks for that instead; delete the key and run setup
+again. The setup assumes your Pi home folder is `/home/<username>`.
 
-- Pi-hole v6 (web interface v6.5 tested)
-- SSH turned on, and an account that can use `sudo`
-- `python3` (already installed on Raspberry Pi OS and most Debian-based systems)
+**"bash\r: No such file or directory"** — the script was saved with Windows
+line endings. Fix it on the Pi with `sed -i 's/\r$//' ~/pihole-time-format.sh`.
 
-**On Windows**
+**The Query Log looks broken** — run the [Undo](#undo) line. If there's no
+backup, `sudo pihole -r` (Repair) reinstalls Pi-hole's original web files.
 
-- Windows 10 or 11 with the **OpenSSH Client**. It's installed by default on
-  current versions. To check, open Command Prompt and type `ssh`. If you get
-  "not recognized", add it from
-  **Settings > System > Optional features > Add a feature > OpenSSH Client**.
+</details>
 
----
+<details>
+<summary><b>How it works</b></summary>
 
-## Quick start (Windows)
+<br>
 
-### 1. Edit the config file
+The Query Log's Time column is drawn by a small JavaScript function in
+`/var/www/html/admin/scripts/js/queries.js`, which formats each timestamp as
+`YYYY-MM-DD HH:mm:ss`. The script:
 
-Right-click `pihole-patch-config.bat` and choose **Edit** (or open it in
-Notepad). Change these two lines and save:
+1. Saves a copy of that file as `queries.js.orig`.
+2. Replaces just the Time column's display function with one that shows
+   Today / Yesterday / date labels.
+3. Marks the file with `// PI-HOLE-TIME-FORMAT-PATCHED` so it knows it's
+   been patched.
+4. Keeps the file's original owner and permissions.
 
-```bat
-set "PI_USER=pi"          <- the username you log into the Pi with
-set "PI_HOST=pi.hole"     <- the Pi's IP address, e.g. 192.168.1.50
-```
+The patched copy is written to a temporary file and only moved into place if
+every step worked. The new function only changes what's displayed; sorting,
+search and export still use the raw timestamp.
 
-`pi.hole` works as the address if your PC already uses Pi-hole for DNS.
-If you're not sure, use the IP address shown on the Pi-hole dashboard.
+Pi-hole updates replace `queries.js`, which is why the patch has to be run
+again after updating.
 
-### 2. (Optional) Set up password-free patching
+</details>
 
-Double-click `setup-pihole-ssh.bat`. You'll type your Pi password twice:
-once to install the key, and once for sudo. After that, patching never asks
-for a password.
+<details>
+<summary><b>Security note (Windows password-free setup only)</b></summary>
 
-Skip this step if you don't mind typing your password each time. Read
-[Security notes](#security-notes) before running it.
+<br>
 
-### 3. Apply the patch
+`setup-pihole-ssh.bat` adds a rule at `/etc/sudoers.d/pihole-timeformat`
+that lets your account run `~/pihole-time-format.sh` as root without a
+password, and nothing else. Your account can edit that file, so anything
+written into it would also run as root. On a home Pi where you already have
+`sudo`, that adds nothing new. **Don't use it on a Pi other people log
+into.**
 
-Double-click `apply-pihole-time-format.bat` and wait for `=== Done ===`.
+It also creates an SSH key without a passphrase, so anyone who can use your
+Windows account could log into the Pi with it.
 
-### 4. Refresh the browser
+No passwords are stored in any file in this project.
 
-On the Pi-hole Query Log tab, press **Ctrl+F5** (a normal refresh can keep
-showing the old, cached version).
+</details>
 
----
+<details>
+<summary><b>Full uninstall</b></summary>
 
-## After every Pi-hole update
+<br>
 
-Updating Pi-hole (`pihole -up`) replaces the patched file with a fresh stock
-copy, so the old timestamps come back. To fix it:
-
-1. Double-click `apply-pihole-time-format.bat`
-2. Press **Ctrl+F5** on the Pi-hole tab
-
-If a Pi-hole update ever changes the Query Log's code so much that the patch
-can't find its place, the script stops without changing anything and tells
-you. See [Troubleshooting](#troubleshooting).
-
----
-
-## Using it from macOS or Linux
-
-The `.bat` files are Windows-only, but the patch script works from any
-computer with `ssh`. Replace `pi@192.168.1.50` with your own login:
+On the Pi:
 
 ```bash
-scp pihole-time-format.sh pi@192.168.1.50:~/
-ssh -t pi@192.168.1.50 "chmod +x ~/pihole-time-format.sh && sudo ~/pihole-time-format.sh apply"
+curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s restore
+sudo rm -f /var/www/html/admin/scripts/js/queries.js.orig
+rm -f ~/pihole-time-format.sh
 ```
 
-Or copy the script onto the Pi any way you like and run it there directly:
-
-```bash
-chmod +x pihole-time-format.sh
-sudo ./pihole-time-format.sh apply
-```
-
----
-
-## Script commands
-
-Run these on the Pi (for example after `ssh pi@192.168.1.50`):
-
-| Command | What it does |
-|---------|--------------|
-| `sudo ~/pihole-time-format.sh apply` | Patches the Query Log. Saves a backup of the stock file first. |
-| `sudo ~/pihole-time-format.sh restore` | Puts the stock file back from the backup. |
-| `~/pihole-time-format.sh status` | Shows whether it's patched, and whether this Pi-hole version can be patched. |
-
-**If Pi-hole's web files are somewhere unusual**, point the script at the
-right `queries.js`:
-
-```bash
-sudo PIHOLE_QUERIES_JS=/path/to/queries.js ~/pihole-time-format.sh apply
-```
-
----
-
-## How it works
-
-Pi-hole's Query Log is a table, and each column has a small JavaScript
-function that decides how its values are shown. For the Time column, that
-function lives in:
-
-```
-/var/www/html/admin/scripts/js/queries.js
-```
-
-and formats each timestamp as `YYYY-MM-DD HH:mm:ss`.
-
-The patch script:
-
-1. Checks that file isn't already patched.
-2. Copies it to `queries.js.orig` as a backup.
-3. Finds the Time column's display function and replaces just that function
-   with one that produces the friendlier labels.
-4. Tags the file with the comment `// PI-HOLE-TIME-FORMAT-PATCHED` so it can
-   tell later whether the patch is in place.
-5. Keeps the file's original owner and permissions.
-
-The new function only changes what's **displayed**. When Pi-hole asks for a
-value to sort, search or export, it still gets the raw timestamp, which is
-why those features keep working.
-
-The edit is done safely: the patched version is written to a temporary file
-first and only moved into place if every step succeeded. If anything goes
-wrong, the original file isn't touched.
-
-Nothing is installed on the Pi apart from the script in your home folder
-(and, if you ran the setup, one SSH key and one sudo rule).
-
----
-
-## Security notes
-
-These only apply if you run `setup-pihole-ssh.bat`.
-
-**The sudo rule.** Setup adds `/etc/sudoers.d/pihole-timeformat`, which lets
-your account run `~/pihole-time-format.sh` as root without a password, and
-nothing else. Because that script sits in your home folder, your account can
-edit it, which means anything written into it would also run as root without
-a password. On a home Pi where your account already has full `sudo` access,
-this doesn't give you anything you didn't already have. **Don't use it on a
-Pi that other people log into.** Skip the setup and type your password
-instead.
-
-**The SSH key.** Setup creates a key with no passphrase (or reuses your
-existing `id_ed25519` key), so patching can run without any typing. Anyone
-who can use your Windows account could use that key to log into the Pi.
-
-**No passwords are stored** in any of these files. You type them at the
-prompts, and they're never saved.
-
----
-
-## Troubleshooting
-
-**"ssh is not recognized as an internal or external command"**
-The OpenSSH Client isn't installed. See [Requirements](#requirements).
-
-**"Permission denied, please try again"**
-Wrong password, or the wrong `PI_USER` in `pihole-patch-config.bat`.
-
-**"Could not resolve hostname" or "Connection timed out"**
-The `PI_HOST` in `pihole-patch-config.bat` is wrong, or the Pi is off. Try
-the Pi's IP address instead of `pi.hole`.
-
-**"sudo: a terminal is required to read the password"**
-The `-t` was removed from the `ssh` line in `apply-pihole-time-format.bat`.
-Put it back: `ssh -t %PI_USER%@%PI_HOST% ...`
-
-**It still asks for a password after running the setup**
-- Run `setup-pihole-ssh.bat` again and check each step says it worked.
-- If your existing `id_ed25519` key has a passphrase, Windows will ask for
-  that instead. Either use the Windows `ssh-agent` service or delete the key
-  and run setup again to make a new one.
-- If your Pi username isn't the same as its home folder name
-  (`/home/<username>`), the sudo rule won't match. Edit
-  `/etc/sudoers.d/pihole-timeformat` with `sudo visudo -f /etc/sudoers.d/pihole-timeformat`
-  to use the right path.
-
-**"Already patched. Nothing to do."**
-The patch is already in place. If the browser still shows the old format,
-press **Ctrl+F5**.
-
-**The browser still shows the old format**
-Press **Ctrl+F5** on the Pi-hole tab. If that doesn't help, run
-`~/pihole-time-format.sh status` on the Pi to confirm it's patched.
-
-**"Could not find the Time column" / "Patchable: NO"**
-A Pi-hole update has changed the Query Log's code, and this script needs
-updating to match. Nothing was changed on your Pi. Run
-`sudo ~/pihole-time-format.sh restore` if the Query Log looks broken for any
-reason.
-
-**"queries.js not found"**
-Pi-hole's web files have moved. The error message shows the command to find
-the file, and how to point the script at it with `PIHOLE_QUERIES_JS`.
-
-**"bash\r: No such file or directory"** (when running the script by hand)
-The script was saved with Windows line endings. Fix it on the Pi with
-`sed -i 's/\r$//' ~/pihole-time-format.sh`. The `.bat` launcher does this
-for you automatically.
-
-**The Query Log looks broken after patching**
-Run `sudo ~/pihole-time-format.sh restore`, then **Ctrl+F5**. If the backup
-is missing, `sudo pihole -r` (Repair) reinstalls Pi-hole's stock web files.
-
----
-
-## Uninstalling
-
-Run these on the Pi.
-
-**1. Put the stock timestamps back**
-
-```bash
-sudo ~/pihole-time-format.sh restore
-```
-
-(The next Pi-hole web interface update would also replace the file with a stock copy.)
-
-**2. Remove the sudo rule** (only if you ran the setup)
+If you used the Windows password-free setup, also run:
 
 ```bash
 sudo rm /etc/sudoers.d/pihole-timeformat
-```
-
-**3. Remove the SSH key** (only if you ran the setup, and you don't use this
-key to log into the Pi for anything else)
-
-```bash
 sed -i '/pihole-time-format$/d' ~/.ssh/authorized_keys
 ```
 
-This removes keys created by the setup, which are labelled
-`pihole-time-format`. If the setup reused a key you already had, remove that
-line by hand with `nano ~/.ssh/authorized_keys`.
+The second line removes only keys the setup created. If it reused a key you
+already had, remove that one by hand with `nano ~/.ssh/authorized_keys` if
+you want to.
 
-**4. Delete the script and backup**
-
-```bash
-rm ~/pihole-time-format.sh
-sudo rm /var/www/html/admin/scripts/js/queries.js.orig
-```
+</details>
 
 ---
 
-## Contributing
+Found a problem? [Open an issue](https://github.com/Mythodix/pihole-time-format/issues)
+and include the output of `pihole -v`.
 
-Found a bug, or did a Pi-hole update break the patch? Please
-[open an issue](https://github.com/YOUR-GITHUB-USERNAME/pihole-time-format/issues) and include:
-
-- the output of `pihole -v`
-- the output of `~/pihole-time-format.sh status`
-- any error message you saw
-
-Pull requests are welcome.
-
-## License
-
-[MIT](LICENSE). Free to use, change and share.
-
-Not affiliated with or endorsed by the Pi-hole project.
+[MIT License](LICENSE) · Not affiliated with the Pi-hole project.

@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.1 — 2026-09-27
+
+- **Added:** one-line install straight from GitHub:
+  `curl -fsSL .../pihole-time-format.sh | sudo bash -s apply`
+- **Changed:** README rewritten around install, update and undo, with the
+  details in collapsible sections.
+- **Changed:** Windows launchers moved into a `windows` folder.
+- **Changed:** the script's messages show the right command to run again,
+  whether it was piped from GitHub or downloaded.
+- **Fixed:** GitHub links in the README and guide.
+
 ## v2.0 — 2026-09-27
 
 First public release.

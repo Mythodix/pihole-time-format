@@ -623,7 +623,7 @@ ssh -t <span class="v u">pi</span>@<span class="v h">pi.hole</span> "chmod +x ~/
     <details>
       <summary><span class="ms lead">password</span>Windows still asks for a password after option 4<span class="ms chev">expand_more</span></summary>
       <div class="inner">
-        <p>If you already had an SSH key with a passphrase, Windows asks for that instead. Delete <code>%USERPROFILE%\.ssh\id_ed25519</code> and its <code>.pub</code> file, then run option 4 again.</p>
+        <p>Option 4 uses a dedicated key at <code>%USERPROFILE%\.ssh\id_ed25519_pihole_time_format</code>, not your default SSH key. If Windows still asks for a password, run option 4 again. Only delete that dedicated key and its <code>.pub</code> file; do not delete <code>id_ed25519</code>.</p>
       </div>
     </details>
 

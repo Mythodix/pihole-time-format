@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# pihole-time-format.sh  (v2.1)
+# pihole-time-format.sh  (v2.3)
 # -----------------------------
 # https://github.com/Mythodix/pihole-time-format
 # Replaces Pi-hole's "YYYY-MM-DD HH:mm:ss" timestamps in the Query Log with
@@ -70,7 +70,7 @@ require_root() {
 require_target() {
     if [[ ! -f "$TARGET" ]]; then
         echo "Error: $TARGET not found." >&2
-        echo "Find it with:  sudo find / -path '*scripts/js/queries.js' 2>/dev/null" >&2
+        echo "Find it with:  sudo find /var/www /usr -path '*scripts/js/queries.js' 2>/dev/null" >&2
         echo "Then run with: sudo PIHOLE_QUERIES_JS=<path> bash pihole-time-format.sh apply" >&2
         exit 1
     fi
@@ -195,6 +195,11 @@ with open(out_path, "w", encoding="utf-8") as f:
     f.write(new_text)
 PYEOF
 
+    if ! grep -qF "$MARKER" "$TMP"; then
+        echo "Error: the patched file was missing its marker, so the original was left unchanged." >&2
+        exit 1
+    fi
+
     # Keep the original file's permissions and owner.
     chmod --reference="$TARGET" "$TMP"
     chown --reference="$TARGET" "$TMP"
@@ -214,6 +219,16 @@ cmd_restore() {
         echo "Error: no backup at $BACKUP" >&2
         echo "Either nothing was patched, or the backup was deleted." >&2
         echo "Running 'sudo pihole -r' (repair) will also restore stock files." >&2
+        exit 1
+    fi
+
+    # After a Pi-hole update, queries.js is already the new stock file (not
+    # patched). Putting the backup back would overwrite it with an older copy.
+    if [[ -f "$TARGET" ]] && ! is_patched; then
+        echo "Error: $TARGET is not patched, so there is nothing to undo." >&2
+        echo "This is normal after a Pi-hole update, which replaces the file." >&2
+        echo "The backup was left alone so it cannot overwrite the newer stock file." >&2
+        echo "To apply the friendly timestamps again, run:  $RUN apply" >&2
         exit 1
     fi
 

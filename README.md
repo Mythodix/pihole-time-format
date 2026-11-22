@@ -10,7 +10,17 @@ Timestamps like `2026-09-27 18:42:01` become **Today 6:42:01 PM**.
 - Sorting, search and export work exactly as before
 - **Windows:** double-click, press 1. **Pi:** paste one line.
 - Undo just as easily
-- For **Pi-hole v6** (tested on web interface v6.5)
+- For **Pi-hole v6** (tested on web interface v6.5; also checked against v6.0–v6.5 and current v6)
+
+This only changes how times are *shown*. It does not use the Pi-hole API, and it never asks for your Pi-hole web password.
+
+---
+
+## Requirements
+
+- **Pi-hole v6** (Core, FTL and the web interface). This does not work with Pi-hole v5.
+- On the Pi: `python3` (already installed on Raspberry Pi OS and most Debian-based systems) and `curl` or `wget` if you install with the one-line command.
+- **Windows launcher (optional):** Windows 10 or 11 with the OpenSSH Client (installed by default).
 
 ---
 
@@ -63,7 +73,7 @@ Then open the Pi-hole **Query Log** and press **Ctrl+F5**.
 <br>
 
 From another computer on your network, open a terminal
-(**Windows Terminal** or **Command Prompt** on Windows, **Terminal** on Mac)
+(**Windows Terminal** or **Command Prompt** on Windows, **Terminal** on a Mac)
 and type:
 
 ```bash
@@ -76,6 +86,43 @@ paste the install line.
 
 </details>
 
+<details>
+<summary><b>I'd rather download the script than pipe it into bash</b></summary>
+
+<br>
+
+On the Pi:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh -o ~/pihole-time-format.sh
+less ~/pihole-time-format.sh                  # read it first if you like (q to quit)
+sudo bash ~/pihole-time-format.sh apply
+```
+
+Other commands: `sudo bash ~/pihole-time-format.sh restore` to undo, and
+`bash ~/pihole-time-format.sh status` to check whether it's patched.
+
+</details>
+
+---
+
+## Setup and saved settings (Windows)
+
+Your Pi's address and username are saved in
+`%APPDATA%\pihole-time-format\settings.cmd`. Your password is never saved.
+To change them, choose **5 · Change Pi or username** from the menu, or delete
+that folder to start fresh.
+
+To stop typing your Pi password each time, choose **4 · Stop asking for my
+password** once. It creates a dedicated SSH key named
+`id_ed25519_pihole_time_format` (it will not touch your default `id_ed25519`
+key) and a rule on the Pi that lets only this patch run without a password.
+Read the [security note](#security-note) first, and only do this on your own Pi.
+
+The first time you connect, Windows will trust the Pi's SSH fingerprint
+automatically. That's convenient on a home network; only do it on a network
+you trust.
+
 ---
 
 ## After a Pi-hole update
@@ -86,6 +133,10 @@ Pi-hole updates put the old timestamps back. Put yours back the same way:
 - **On the Pi:** run the install line again.
 
 Then press **Ctrl+F5** on the Query Log.
+
+Do not use **Undo** just after an update. The update already replaced the
+file, and Undo would refuse to overwrite that newer file with an older backup.
+Use **Apply** instead.
 
 ---
 
@@ -98,7 +149,8 @@ Then press **Ctrl+F5** on the Query Log.
   curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh | sudo bash -s restore
   ```
 
-This puts Pi-hole's original file back exactly as it was.
+This puts Pi-hole's original file back exactly as it was when you last
+applied the patch.
 
 ---
 
@@ -109,7 +161,7 @@ This puts Pi-hole's original file back exactly as it was.
 
 <br>
 
-It changes one display setting in one file of Pi-hole's web page. It doesn't
+It changes one display function in one file of Pi-hole's web page. It doesn't
 touch blocking, DNS, your settings or your lists. A backup of the original
 file is saved first, and if anything goes wrong while patching, the original
 is left untouched. The whole script is
@@ -119,37 +171,17 @@ running it.
 </details>
 
 <details>
-<summary><b>Can the Windows version stop asking for my password?</b></summary>
-
-<br>
-
-Yes. Choose **4 · Stop asking for my password** from the menu once. It sets
-up an SSH key and a rule on the Pi that lets only this patch run without a
-password. Read the [security note](#security-note) first; only do this on
-your own Pi.
-
-</details>
-
-<details>
-<summary><b>Where does the Windows version save my details?</b></summary>
-
-<br>
-
-Your Pi's address and username are saved in
-`%APPDATA%\pihole-time-format\settings.cmd`. Your password is never saved.
-To change them, choose **5 · Change Pi or username** from the menu, or delete
-that folder to start fresh.
-
-</details>
-
-<details>
 <summary><b>Which Pi-hole versions does it work with?</b></summary>
 
 <br>
 
-Pi-hole v6. It was tested on web interface v6.5 (Core v6.4.2, FTL v6.6.2).
-Check yours with `pihole -v`. If a future update changes things too much,
-the script stops and tells you, without changing anything.
+Pi-hole v6 only. It was tested on web interface v6.5 (Core v6.4.2, FTL v6.6.2)
+and the patcher was also checked against web v6.0 through v6.5 and the current
+v6 code. Check yours with `pihole -v`. If a future update changes things too
+much, the script stops and tells you, without changing anything.
+
+It does not support Pi-hole v5, whose Query Log code is different. In that
+case it exits with an error and leaves your files alone.
 
 </details>
 
@@ -175,32 +207,9 @@ with the output of `pihole -v`.
 
 </details>
 
-<details>
-<summary><b>I'd rather download it than pipe it into bash</b></summary>
-
-<br>
-
-On the Pi:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/pihole-time-format.sh -o ~/pihole-time-format.sh
-less ~/pihole-time-format.sh                  # read it first if you like (q to quit)
-sudo bash ~/pihole-time-format.sh apply
-```
-
-Other commands: `sudo bash ~/pihole-time-format.sh restore` to undo, and
-`bash ~/pihole-time-format.sh status` to check whether it's patched.
-
-</details>
-
 ---
 
-## More
-
-<details>
-<summary><b>Troubleshooting</b></summary>
-
-<br>
+## Troubleshooting
 
 **"Permission denied"** — wrong password, or the wrong username. On Windows,
 choose **5 · Change Pi or username** to fix the saved details.
@@ -210,7 +219,7 @@ address, or the Pi is off. Use the IP address shown on the Pi-hole
 dashboard.
 
 **"queries.js not found"** — Pi-hole's web files are somewhere unusual.
-Find them with `sudo find / -path '*scripts/js/queries.js' 2>/dev/null`,
+Find them with `sudo find /var/www /usr -path '*scripts/js/queries.js' 2>/dev/null`,
 then run
 `sudo PIHOLE_QUERIES_JS=/path/to/queries.js bash pihole-time-format.sh apply`.
 
@@ -220,10 +229,12 @@ then run
 Add it from **Settings › System › Optional features › Add a feature ›
 OpenSSH Client**. It comes with Windows 10 and 11, so this is rare.
 
-**Windows still asks for a password after option 4** — if you already had an
-SSH key with a passphrase, Windows asks for that instead. Delete
-`%USERPROFILE%\.ssh\id_ed25519` and its `.pub` file, then run option 4
-again.
+**Windows still asks for a password after option 4** — run option 4 again
+after updating this tool, so it can set up the dedicated key. If it still
+asks, delete only
+`%USERPROFILE%\.ssh\id_ed25519_pihole_time_format` and its `.pub` file, then
+run option 4 again. Do not delete `id_ed25519`; that may be a key you use
+for other things.
 
 **"Getting the latest patch script from GitHub" fails** (Windows) — your Pi
 can't reach the internet. Download the whole project instead (green **Code**
@@ -236,12 +247,12 @@ line endings. Fix it on the Pi with `sed -i 's/\r$//' ~/pihole-time-format.sh`.
 **The Query Log looks broken** — run the [Undo](#undo) line. If there's no
 backup, `sudo pihole -r` (Repair) reinstalls Pi-hole's original web files.
 
-</details>
+**Undo said the file is not patched** — that's normal after a Pi-hole update,
+which already put the stock file back. Run **Apply** instead of Undo.
 
-<details>
-<summary><b>How it works</b></summary>
+---
 
-<br>
+## How it works
 
 The Query Log's Time column is drawn by a small JavaScript function in
 `/var/www/html/admin/scripts/js/queries.js`, which formats each timestamp as
@@ -251,7 +262,7 @@ The Query Log's Time column is drawn by a small JavaScript function in
 2. Replaces just the Time column's display function with one that shows
    Today / Yesterday / date labels.
 3. Marks the file with `// PI-HOLE-TIME-FORMAT-PATCHED` so it knows it's
-   been patched.
+   been patched, and checks for that mark before replacing the original.
 4. Keeps the file's original owner and permissions.
 
 The patched copy is written to a temporary file and only moved into place if
@@ -261,12 +272,9 @@ search and export still use the raw timestamp.
 Pi-hole updates replace `queries.js`, which is why the patch has to be run
 again after updating.
 
-</details>
+---
 
-<details id="security-note">
-<summary><b>Security note (Windows option 4 only)</b></summary>
-
-<br>
+## Security note (Windows option 4 only)
 
 **4 · Stop asking for my password** adds a rule at
 `/etc/sudoers.d/pihole-timeformat` that lets your account run
@@ -275,18 +283,16 @@ account can edit that file, so anything written into it would also run as
 root. On a home Pi where you already have `sudo`, that adds nothing new.
 **Don't use it on a Pi other people log into.**
 
-It also creates an SSH key without a passphrase (or uses your existing one),
-so anyone who can use your Windows account could log into the Pi.
+It also creates a dedicated SSH key without a passphrase (not your default
+`id_ed25519` key), so anyone who can use your Windows account could log into
+the Pi with that key.
 
 The rule is checked with `visudo` before it's installed, so a mistake can't
 lock you out of `sudo`. No passwords are stored anywhere.
 
-</details>
+---
 
-<details>
-<summary><b>Full uninstall</b></summary>
-
-<br>
+## Uninstall
 
 On the Pi:
 
@@ -303,15 +309,16 @@ sudo rm /etc/sudoers.d/pihole-timeformat
 sed -i '/pihole-time-format$/d' ~/.ssh/authorized_keys
 ```
 
-The second line removes only keys the setup created. If it reused a key you
-already had, remove that one by hand with `nano ~/.ssh/authorized_keys` if
-you want to.
+The second line removes only keys this setup created. If it reused a key you
+already had (only possible with the older v2.2 launcher), remove that one by
+hand with `nano ~/.ssh/authorized_keys` if you want to.
 
 On Windows, delete the `%APPDATA%\pihole-time-format` folder to remove the
 saved Pi address and username. Paste that path into File Explorer's address
-bar to find it.
-
-</details>
+bar to find it. If you used option 4, you can also delete
+`%USERPROFILE%\.ssh\id_ed25519_pihole_time_format` and the matching `.pub`
+file. Leave any `id_ed25519` key alone unless you know you created it only
+for this.
 
 ---
 

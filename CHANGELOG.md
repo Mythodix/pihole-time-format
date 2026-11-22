@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.3 — proposed
+
+- **Fixed:** `restore` no longer overwrites a newer stock `queries.js` after a Pi-hole update. If the current file is not patched, restore stops and tells you to run `apply` instead.
+- **Fixed:** the Windows option 4 key is now a dedicated file, `id_ed25519_pihole_time_format`, so it never creates or overwrites your default `id_ed25519` key. If you already used option 4 with v2.2, run option 4 once more after updating.
+- **Fixed:** the patch is checked for its marker before it replaces `queries.js`, so a failed edit cannot install a broken file.
+- **Changed:** the "file not found" hint now searches `/var/www` and `/usr` instead of the whole disk.
+
+
 ## v2.2 — 2026-09-27
 
 - **New Windows launcher:** one file, `pihole-time-format.bat`, replaces the

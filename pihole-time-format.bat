@@ -17,6 +17,8 @@ REM
 REM  Your Pi's address and username are saved in:
 REM    %APPDATA%\pihole-time-format\settings.cmd
 REM  Your password is never saved. Delete that folder to start fresh.
+REM  Option 4 uses a dedicated SSH key named id_ed25519_pihole_time_format,
+REM  not your default id_ed25519 key.
 REM
 REM  Works on its own: if pihole-time-format.sh isn't in the same folder as
 REM  this file, the Pi downloads the latest copy from GitHub instead.
@@ -31,7 +33,9 @@ set "RAW_URL=https://raw.githubusercontent.com/Mythodix/pihole-time-format/main/
 set "SCRIPT=pihole-time-format.sh"
 set "CFG_DIR=%APPDATA%\pihole-time-format"
 set "CFG=%CFG_DIR%\settings.cmd"
-set "KEY=%USERPROFILE%\.ssh\id_ed25519"
+REM Dedicated key, so option 4 never creates or overwrites the default
+REM id_ed25519 key you may already use for GitHub or other servers.
+set "KEY=%USERPROFILE%\.ssh\id_ed25519_pihole_time_format"
 REM accept-new: trust a Pi the first time we see it, without a yes/no prompt.
 set "SSHOPT=-o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new"
 
@@ -147,6 +151,7 @@ REM ===========================================================================
 :run
 set "ACT=%~1"
 set "SUDO=sudo "
+call :sshopts
 if /i "%ACT%"=="status" set "SUDO="
 cls
 echo.
@@ -162,7 +167,7 @@ goto run_go
 
 :run_upload
 echo   Uploading the patch script to the Pi...
-scp -q %SSHOPT% "%~dp0%SCRIPT%" %PI_USER%@%PI_HOST%:~/
+scp -q %IDOPT% %SSHOPT% "%~dp0%SCRIPT%" %PI_USER%@%PI_HOST%:~/
 if errorlevel 1 (
     echo.
     echo   Upload failed. Check the Pi is on, and your password.
@@ -175,7 +180,7 @@ if errorlevel 1 (
 REM sed removes Windows line endings, in case the script was edited on
 REM Windows. -t lets sudo ask for your password if it needs to.
 echo.
-ssh -t %SSHOPT% %PI_USER%@%PI_HOST% "%GET% && sed -i 's/\r$//' ~/%SCRIPT% && chmod +x ~/%SCRIPT% && %SUDO%~/%SCRIPT% %ACT%"
+ssh -t %IDOPT% %SSHOPT% %PI_USER%@%PI_HOST% "%GET% && sed -i 's/\r$//' ~/%SCRIPT% && chmod +x ~/%SCRIPT% && %SUDO%~/%SCRIPT% %ACT%"
 if errorlevel 1 (
     echo.
     echo   Something went wrong. See the messages above.
@@ -220,7 +225,7 @@ echo.
 if exist "%KEY%" (
     echo   [1/4] Using your existing SSH key.
 ) else (
-    echo   [1/4] Creating an SSH key...
+    echo   [1/4] Creating a dedicated SSH key (not your default one)...
     if not exist "%USERPROFILE%\.ssh" mkdir "%USERPROFILE%\.ssh"
     ssh-keygen -q -t ed25519 -f "%KEY%" -N "" -C "pihole-time-format"
     if errorlevel 1 (
@@ -254,7 +259,7 @@ if errorlevel 1 (
 )
 
 echo   [4/4] Testing...
-ssh -o BatchMode=yes %SSHOPT% %PI_USER%@%PI_HOST% "exit 0" >nul 2>&1
+ssh -i "%KEY%" -o IdentitiesOnly=yes -o BatchMode=yes %SSHOPT% %PI_USER%@%PI_HOST% "exit 0" >nul 2>&1
 if errorlevel 1 (
     echo.
     echo   The key didn't work, so you'll still be asked for your password.
@@ -269,6 +274,15 @@ echo.
 echo   All set. The patch won't ask for your password any more.
 echo.
 pause
+exit /b 0
+
+
+REM ===========================================================================
+REM  After option 4, use the dedicated key and no others.
+REM ===========================================================================
+:sshopts
+set "IDOPT="
+if defined PWFREE if exist "%KEY%" set IDOPT=-i "%KEY%" -o IdentitiesOnly=yes
 exit /b 0
 
 

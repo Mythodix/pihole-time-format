@@ -1,0 +1,12 @@
+# Local secrets and settings (the Windows launcher stores these in %APPDATA%)
+.env
+.env.*
+settings.cmd
+
+# Backups and generated files
+*.orig
+*.log
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
